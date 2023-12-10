@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="club.css">
+    <title>Club Formular</title>
+</head>
+<body>
+    <header>
+        <a href="index.html"><img  src="Bildschirmfoto 2023-08-03 um 11.55.53.png" class="logo"></a>
+
+    </header>
+    <h1>Club Formular</h1>
+   
+
+    <form action="https://formsubmit.co/partyfinder.vienna@gmail.com" method="POST" enctype="multipart/form-data">
+        <input type="text" name="Name" placeholder="Name des Clubs" required>
+        <input type="text" name="Adresse" placeholder="Adresse" required>
+        <input type="text" name="Altersfreigabe" placeholder="Altersfreigabe" required>
+        <input type="text" name="Musikstil" placeholder="Musikstil" required>
+        <input type="text" name="Eintrittspreis" placeholder="Eintrittspreis" required>
+        <input type="text" name="Vodkabullpreis" placeholder="Preis eines Getränks (am besten Vodkabull)" required>
+        <input type="text" name="websitelink" placeholder="Website-Link (nicht verpflichtend)">
+    
+    
+        <!-- Hier wird das Input-Feld für das Bild hinzugefügt -->
+        <label for="imageUpload">Bild hochladen:</label>
+        <input type="file" id="imageUpload" name="image" accept="image/*">
+    
+        <button type="submit">senden</button>
+    </form>
+    
+
+
+</body>
+</html>
+
