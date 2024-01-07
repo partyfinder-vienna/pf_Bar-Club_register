@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile</title>
+    <link rel="stylesheet" href="MyProfile.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Hinweis!</h1>
+        <p>Jedes Feld muss ausgefüllt werden! Wenn Sie zu einem Feld keine Angabe machen wollen, schreiben Sie --- (3 Bindestriche) hinein.</p>
+    </div>
+
+    <div id="eventfields">
+        <h2>Ein Event eintragen</h2>
+        <label for="eventName">Namen des Events</label>
+        <input type="text" id="eventName" name="eventName" placeholder="Bar Beispiel">
+
+        <label for="eventAddress">Event Address</label>
+        <input type="text" id="eventAddress" name="eventAddress" placeholder="Beispielstraße 11">
+
+        <label for="eventBezirk">Bezirk</label>
+        <input type="text" id="eventBezirk" name="eventBezirk" placeholder="1. Bezirk">
+
+        <label for="eventDateTime">Datum und Uhrzeit</label>
+        <input type="datetime-local" id="eventDateTime" name="eventDateTime">
+
+        <label for="eventPreis">Ticketpreis</label>
+        <input type="text" id="eventPreis" name="eventPreis" placeholder="15€">
+
+        <label for="eventClub">Club in dem das Event ist</label>
+        <input type="text" id="eventClub" name="eventClub" placeholder="Name des Clubs">
+
+        <label for="eventAlter">Altersfreigabe</label>
+        <input type="text" id="eventAlter" name="eventAlter" placeholder="18+">
+
+        <label for="eventVoucher">Gutscheincode</label>
+        <input type="text" id="eventVoucher" name="eventVoucher" placeholder="code - 5€ sparen">
+
+        <label for="eventBeschreibung">Beschreibung</label>
+        <input type="text" id="eventBeschreibung" name="eventBeschreibung" placeholder="Text der das Event beschreibt">
+
+        <label for="eventPhotos"><p class="Öschrift">Fotos hochladen</p></label>
+        <input type="file" id="eventPhotos" name="eventPhotos" accept="image/*" multiple>
+
+        <button id="saveEventButton">Save</button>
+    </div>
+
+    <script type="module">
+        // Importe für Firebase-Module
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, setDoc, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+        // Firebase-Konfiguration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBKYn4lIwjzS9XkfNj95-jLWt-kqk9fVdE",
+            authDomain: "partyfinder-5e5c6.firebaseapp.com",
+            databaseURL: "https://partyfinder-5e5c6-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "partyfinder-5e5c6",
+            storageBucket: "partyfinder-5e5c6.appspot.com",
+            messagingSenderId: "888383168582",
+            appId: "1:888383168582:web:87ee143f943e4f68b42a47",
+            measurementId: "G-SD8D79ENLW"
+        };
+
+        // Initialisierung der Firebase-App
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore();
+
+        // Save Event button click event
+        document.getElementById('saveEventButton').addEventListener('click', async () => {
+            try {
+                // Save Event information directly under the user document
+                const eventName = document.getElementById('eventName').value;
+                const eventAddress = document.getElementById('eventAddress').value;
+                const eventBezirk = document.getElementById('eventBezirk').value;
+
+                const eventPreis = document.getElementById('eventPreis').value;
+                const eventClub = document.getElementById('eventClub').value;
+                const eventAlter = document.getElementById('eventAlter').value;
+                const eventVoucher = document.getElementById('eventVoucher').value;
+                const eventBeschreibung = document.getElementById('eventBeschreibung').value;
+
+                const photoInput = document.getElementById('eventPhotos');
+                const photoFiles = photoInput.files;
+
+                // Save photos to Firebase Storage and get download URLs
+                const photoURLs = await uploadPhotos(photoFiles);
+
+                const eventDateTime = document.getElementById('eventDateTime').value;
+                const eventDateTimeObj = new Date(eventDateTime);
+
+                // Calculate delete date: 10 hours after the specified date
+                const deleteDateTimeObj = new Date(eventDateTimeObj.getTime() + 10 * 60 * 60 * 1000);
+
+                // Save Event information to Firestore
+                await setDoc(doc(db, "locations", eventName), {
+                    name: eventName,
+                    address: eventAddress,
+                    cityName: eventBezirk,
+                    age: eventAlter,
+                    discription: eventBeschreibung,
+                    eventClub: eventClub,
+                    prize: eventPreis,
+                    voucher: eventVoucher,
+                    imageNames: photoURLs,
+                    dateTime: Timestamp.fromDate(eventDateTimeObj), // Save the date as a timestamp
+                    deleteDateTime: Timestamp.fromDate(deleteDateTimeObj),
+                    type: "Event"
+                }, { merge: true });
+
+                alert('Event erfolgreich erstellt!');
+            } catch (error) {
+                console.error("Error updating event information", error);
+                alert('Fehler beim Erstellen des Events!');
+            }
+        });
+
+        // Function to upload photos
+        async function uploadPhotos(files) {
+            const storage = getStorage();
+            const photoURLs = [];
+
+            for (const file of files) {
+                const photoRef = ref(storage, `event_photos/${file.name}`);
+                await uploadBytes(photoRef, file);
+                const downloadURL = await getDownloadURL(photoRef);
+                photoURLs.push(downloadURL);
+            }
+
+            return photoURLs;
+        }
+    </script>
+</body>
+
+</html>

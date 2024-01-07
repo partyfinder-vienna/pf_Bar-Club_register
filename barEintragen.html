@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile</title>
+    <link rel="stylesheet" href="MyProfile.css">
+</head>
+
+<body>
+    <header class="zurück">
+        <a href="index.html"><p>zürck</p></a>
+    </header>
+    
+
+    <div id="clubFields">
+        <h2>Daten zu Ihrer Bar</h2>
+        <label for="barName">Namen der Bar</label>
+        <input type="text" id="barName" name="barName" placeholder="Bar Beispiel">
+
+        <label for="barAddress">Bar Address</label>
+        <input type="text" id="barAddress" name="barAddress" placeholder="Beispielstraße 11"> 
+
+        <label for="barlatitude">Latitude</label>
+        <input type="text" id="barlatitude" name="barlatitude" placeholder="48.5..."> 
+
+        <label for="barlongitude">Longitude</label>
+        <input type="text" id="barlongitude" name="barlongitude" placeholder="16.5..."> 
+
+
+        <label for="barBezirk">Bezirk</label>
+        <input type="text" id="barBezirk" name="barBezirk" placeholder="1. Bezirk"> 
+
+        <p class="Öschrift">Infos zu Ihrer Bar</p>
+
+        <div id="info1">
+            <!-- Hinzugefügtes Feld für "Bierpreis" mit display: none; -->
+            <input type="text" id="barBierPreisArray" name="barBierPreisArray" value="Bierpreis" readonly style="display: none;">
+        
+            <label for="barBierPreis">Bierpreis</label>
+            <input type="text" id="barBierPreis" name="barBierPreis" placeholder="0,5l - 5,50€">
+        </div>
+
+        <div id="info2">
+            <!-- Hinzugefügtes Feld für "Preisklasse" mit display: none; -->
+            <input type="text" id="barPreisklasseArray" name="barPreisklasseArray" value="Preisklasse" readonly style="display: none;">
+        
+            <label for="barPreisklasse">Preisklasse</label>
+            <input type="text" id="barPreisklasse" name="barPreisklasse" placeholder="€">
+        </div>
+
+        <label for="barWebsite">Website-Link</label>
+        <input type="text" id="barWebsite" name="barWebsite" placeholder="https://partyfinder-vienna.pages.dev">
+
+        <label for="barOpeningHours"><p class="Öschrift">Öffnungszeiten</p></label>
+        <div id="barOpeningHours">
+            <!-- Montag -->
+            <label for="monday">Montag</label>
+            <input type="text" id="monday" name="monday" placeholder="12:00 - 24:00">
+
+            <!-- Dienstag -->
+            <label for="tuesday">Dienstag</label>
+            <input type="text" id="tuesday" name="tuesday" placeholder="12:00 - 24:00">
+
+            <label for="wednesday">Mittwoch</label>
+            <input type="text" id="wednesday" name="wednesday" placeholder="12:00 - 24:00">
+
+            <label for="thursday">Donnerstag</label>
+            <input type="text" id="thursday" name="thursday" placeholder="12:00 - 24:00">
+
+            <label for="friday">Freitag</label>
+            <input type="text" id="friday" name="friday" placeholder="12:00 - 24:00">
+
+            <label for="saturday">Samstag</label>
+            <input type="text" id="saturday" name="saturday" placeholder="12:00 - 24:00">
+
+            <label for="sunday">Sonntag</label>
+            <input type="text" id="sunday" name="sunday" placeholder="12:00 - 24:00">
+        </div>
+
+        <label for="barPhotos"><p class="Öschrift">Fotos hochladen</p></label>
+        <input type="file" id="barPhotos" name="barPhotos" accept="image/*" multiple>
+
+        <button id="saveBarButton">Save</button>
+    </div>
+
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+        const firebaseConfig = {
+    apiKey: "AIzaSyBKYn4lIwjzS9XkfNj95-jLWt-kqk9fVdE",
+    authDomain: "partyfinder-5e5c6.firebaseapp.com",
+    databaseURL: "https://partyfinder-5e5c6-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "partyfinder-5e5c6",
+    storageBucket: "partyfinder-5e5c6.appspot.com",
+    messagingSenderId: "888383168582",
+    appId: "1:888383168582:web:87ee143f943e4f68b42a47",
+    measurementId: "G-SD8D79ENLW"
+};
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore();
+
+        // Save Bar button click event
+        document.getElementById('saveBarButton').addEventListener('click', async () => {
+            try {
+                // Save Bar information directly under a collection
+                const barName = document.getElementById('barName').value;
+                const barAddress = document.getElementById('barAddress').value;
+
+
+        const barlatitude = parseFloat(document.getElementById('barlatitude').value);
+        const barlongitude = parseFloat(document.getElementById('barlongitude').value);
+
+                const barBezirk = document.getElementById('barBezirk').value;
+                const barBierPreis = document.getElementById('barBierPreis').value;
+                const barPreisklasse = document.getElementById('barPreisklasse').value;
+                const barWebsite = document.getElementById('barWebsite').value;
+
+                // Öffnungszeiten extrahieren
+                const openingHours = {
+                    monday: document.getElementById('monday').value,
+                    tuesday: document.getElementById('tuesday').value,
+                    wednesday: document.getElementById('wednesday').value,
+                    thursday: document.getElementById('thursday').value,
+                    friday: document.getElementById('friday').value,
+                    saturday: document.getElementById('saturday').value,
+                    sunday: document.getElementById('sunday').value,
+                };
+
+                // Hochgeladene Fotos extrahieren
+                const photoInput = document.getElementById('barPhotos');
+                const photoFiles = photoInput.files;
+
+                // Speichere Fotos in Firebase Storage und erhalte die Download-URLs
+                const photoURLs = await uploadPhotos(photoFiles);
+
+                // Speichere die Barinformationen in Firestore
+                await setDoc(doc(db, "locations", barName), {
+                    name: barName,
+                    address: barAddress,
+                    cityName: barBezirk,
+                    link: barWebsite,
+                    openingHours: openingHours,
+                    info1: ["Bierpreis", barBierPreis],
+                    info2: ["Preisklasse", barPreisklasse],
+                    imageNames: photoURLs,
+                    latitude: barlatitude,
+                    longitude: barlongitude,
+                    type: "Bar",
+
+                }, { merge: true });
+
+                alert('Daten erfolgreich geupdatet!');
+
+                // Lade die gespeicherten Informationen erneut und aktualisiere die Textfelder
+                await loadSavedData();
+            } catch (error) {
+                console.error("Error updating bar information", error);
+            }
+        });
+
+        // Funktion zum Hochladen von Fotos
+        async function uploadPhotos(files) {
+            const storage = getStorage();
+            const photoURLs = [];
+
+            for (const file of files) {
+                const photoRef = ref(storage, `bar_photos/${file.name}`);
+                await uploadBytes(photoRef, file);
+                const downloadURL = await getDownloadURL(photoRef);
+                photoURLs.push(downloadURL);
+            }
+
+            return photoURLs;
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile</title>
+    <link rel="stylesheet" href="MyProfile.css">
+</head>
+
+<body>
+    <header class="zurück">
+        <a href="index.html"><p>zürck</p></a>
+    </header>
+    
+
+    <div id="clubFields">
+        <h2>Club eintragen</h2>
+        <label for="clubName">Namen des Clubs</label>
+        <input type="text" id="clubName" name="clubName" placeholder="Club Beispiel">
+
+        <label for="clubAddress">Club Address</label>
+        <input type="text" id="clubAddress" name="clubAddress" placeholder="Beispielstraße 11"> 
+
+        <label for="barlatitude">Latitude</label>
+        <input type="text" id="barlatitude" name="barlatitude" placeholder="48.5..."> 
+
+        <label for="barlongitude">Longitude</label>
+        <input type="text" id="barlongitude" name="barlongitude" placeholder="16.5..."> 
+
+        <label for="clubBezirk">Bezirk</label>
+        <input type="text" id="clubBezirk" name="clubBezirk" placeholder="1. Bezirk"> 
+
+        <p class="Öschrift">Infos zu Ihrem Club</p>
+
+
+        <div id="info1">
+            <!-- Hinzugefügtes Feld für "Alter" mit display: none; -->
+            <input type="text" id="clubAlterArray" name="clubAlterArray" value="Alter" readonly style="display: none;">
+        
+            <label for="clubAltersfreigabe">Altersfreigabe</label>
+            <input type="text" id="clubAltersfreigabe" name="clubAltersfreigabe" placeholder="18+">
+        </div>
+
+        <div id="info2">
+            <!-- Hinzugefügtes Feld für "Alter" mit display: none; -->
+            <input type="text" id="clubMusikArray" name="clubMusikArray" value="Musik" readonly style="display: none;">
+        
+            <label for="clubMusik">Musikstil</label>
+            <input type="text" id="clubMusik" name="clubMusik" placeholder="Hip-Hop">
+        </div>
+
+        <div id="info3">
+            <!-- Hinzugefügtes Feld für "Alter" mit display: none; -->
+            <input type="text" id="clubEintrittArray" name="clubEintrittArray" value="Eintritt" readonly style="display: none;">
+        
+            <label for="clubEintritt">Eintrittspreis</label>
+            <input type="text" id="clubEintritt" name="clubEintritt" placeholder="15€">
+        </div>
+
+        <div id="info4">
+            <!-- Hinzugefügtes Feld für "Alter" mit display: none; -->
+            <input type="text" id="clubPreisArray" name="clubPreisArray" value="Vodkabull" readonly style="display: none;">
+        
+            <label for="clubPreis">Preis einens Getränkes</label>
+            <input type="text" id="clubPreis" name="clubPreis" placeholder="12€">
+        </div>
+        
+        
+
+
+
+        <label for="clubWebsite">Website-Link</label>
+        <input type="text" id="clubWebsite" name="clubWebsite" placeholder="https://partyfinder-vienna.pages.dev">
+
+        <label for="clubOpeningHours"><p class="Öschrift">Öffnungszeiten</p></label>
+<div id="clubOpeningHours">
+    <!-- Montag -->
+    <label for="monday">Montag</label>
+    <input type="text" id="monday" name="monday" placeholder="12:00 - 24:00">
+
+    <!-- Dienstag -->
+    <label for="tuesday">Dienstag</label>
+    <input type="text" id="tuesday" name="tuesday" placeholder="12:00 - 24:00">
+
+    <label for="wednesday">Mittwoch</label>
+    <input type="text" id="wednesday" name="wednesday" placeholder="12:00 - 24:00">
+
+    <label for="thursday">Donnerstag</label>
+    <input type="text" id="thursday" name="thursday" placeholder="12:00 - 24:00">
+
+    <label for="friday">Freitag</label>
+    <input type="text" id="friday" name="friday" placeholder="12:00 - 24:00">
+
+    <label for="saturday">Samstag</label>
+    <input type="text" id="saturday" name="saturday" placeholder="12:00 - 24:00">
+
+    <label for="sunday">Sonntag</label>
+    <input type="text" id="sunday" name="sunday" placeholder="12:00 - 24:00">
+</div>
+
+<label for="clubPhotos"><p class="Öschrift">Fotos hochladen</p></label>
+<input type="file" id="clubPhotos" name="clubPhotos" accept="image/*" multiple>
+
+        <button id="saveClubButton">Save</button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+// Firebase-Konfiguration
+const firebaseConfig = {
+    apiKey: "AIzaSyBKYn4lIwjzS9XkfNj95-jLWt-kqk9fVdE",
+    authDomain: "partyfinder-5e5c6.firebaseapp.com",
+    databaseURL: "https://partyfinder-5e5c6-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "partyfinder-5e5c6",
+    storageBucket: "partyfinder-5e5c6.appspot.com",
+    messagingSenderId: "888383168582",
+    appId: "1:888383168582:web:87ee143f943e4f68b42a47",
+    measurementId: "G-SD8D79ENLW"
+};
+
+// Initialisierung der Firebase-App
+const app = initializeApp(firebaseConfig);
+const db = getFirestore();
+
+// Save Club button click event
+document.getElementById('saveClubButton').addEventListener('click', async () => {
+    try {
+        // Clubinformationen speichern
+        const clubName = document.getElementById('clubName').value;
+        const clubAddress = document.getElementById('clubAddress').value;
+
+        const barlatitude = parseFloat(document.getElementById('barlatitude').value);
+        const barlongitude = parseFloat(document.getElementById('barlongitude').value);
+
+        const clubBezirk = document.getElementById('clubBezirk').value;
+        const clubAltersfreigabe = document.getElementById('clubAltersfreigabe').value;
+        const clubMusik = document.getElementById('clubMusik').value;
+        const clubEintritt = document.getElementById('clubEintritt').value;
+        const clubPreis = document.getElementById('clubPreis').value;
+        const clubWebsite = document.getElementById('clubWebsite').value;
+
+        // Öffnungszeiten extrahieren
+        const openingHours = {
+            monday: document.getElementById('monday').value,
+            tuesday: document.getElementById('tuesday').value,
+            wednesday: document.getElementById('wednesday').value,
+            thursday: document.getElementById('thursday').value,
+            friday: document.getElementById('friday').value,
+            saturday: document.getElementById('saturday').value,
+            sunday: document.getElementById('sunday').value,
+        };
+
+        // Hochgeladene Fotos extrahieren
+        const photoInput = document.getElementById('clubPhotos');
+        const photoFiles = photoInput.files;
+
+        // Fotos in Firebase Storage speichern und Download-URLs erhalten
+        const photoURLs = await uploadPhotos(photoFiles);
+
+        // Clubinformationen in Firestore speichern
+        await setDoc(doc(db, "locations", clubName), {
+            name: clubName,
+            address: clubAddress,
+            cityName: clubBezirk,
+            link: clubWebsite,
+            openingHours: openingHours,
+            info1: ["Alter", clubAltersfreigabe],
+            info2: ["Musik", clubMusik],
+            info3: ["Eintritt", clubEintritt],
+            info4: ["Vodkabullpreis", clubPreis],
+            imageNames: photoURLs,
+            latitude: barlatitude,
+            longitude: barlongitude,
+            type: "Club",
+
+        }, { merge: true });
+
+        alert('Daten erfolgreich gespeichert!');
+    } catch (error) {
+        console.error("Fehler beim Speichern der Clubinformationen", error);
+    }
+});
+
+// Funktion zum Hochladen von Fotos
+async function uploadPhotos(files) {
+    const storage = getStorage();
+    const photoURLs = [];
+
+    for (const file of files) {
+        const photoRef = ref(storage, `club_photos/${file.name}`);
+        await uploadBytes(photoRef, file);
+        const downloadURL = await getDownloadURL(photoRef);
+        photoURLs.push(downloadURL);
+    }
+
+    return photoURLs;
+}
+
+// Weitere Funktionen und Event-Listener können hier hinzugefügt werden
+
+    </script>
+</body>
+</html>
